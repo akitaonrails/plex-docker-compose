@@ -1,0 +1,67 @@
+version: '3'
+
+name: 'net'
+
+services:
+  cloudflared:
+    image: visibilityspots/cloudflared:latest
+    restart: unless-stopped
+    environment:
+      - UPSTREAM1=https://1.1.1.1/dns-query
+      - UPSTREAM2=https://1.0.0.1/dns-query
+      - PORT=5054
+      - ADDRESS=0.0.0.0
+      - METRICS=127.0.0.1:8088
+    network_mode: host
+
+  pihole:
+    image: pihole/pihole:latest
+    restart: unless-stopped
+    depends_on:
+      - cloudflared
+    environment:
+      - DNSMASQ_USER=pihole
+      - WEBPASSWORD=ekCiN8!8b8ciNt2YmFAER
+      - TZ=America/Sao_Paulo
+      - PIHOLE_DNS_=127.0.0.1#5054
+      - WEB_PORT=8053
+    volumes:
+      - /home/akitaonrails/dnsmasq.d:/etc/dnsmasq.d
+      - /home/akitaonrails/pihole:/etc/pihole
+    network_mode: host
+    cap_add:
+      - NET_RAW
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    cap_add:
+      - NET_RAW
+      - SETUID
+
+  zerotier:
+    image: zerotier/zerotier:latest
+    restart: unless-stopped
+    volumes:
+      - /home/akitaonrails/zerotier:/var/lib/zerotier-one
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_ADMIN
+    network_mode: host
+
+  librespeed:
+    image: lscr.io/linuxserver/librespeed:latest
+    restart: unless-stopped
+    environment:
+      - TZ=America/Sao_Paulo
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /home/akitaonrails/librespeed:/config
+    ports:
+      - '9091:80'
