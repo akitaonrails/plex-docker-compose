@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 name: kaizoku
 
@@ -11,7 +11,7 @@ services:
     container_name: kaizoku
     image: ghcr.io/oae/kaizoku:latest
     environment:
-      - DATABASE_URL=postgresql://kaizoku:kaizoku@kaizoku-db:5432/kaizoku
+      - DATABASE_URL=postgresql://kaizoku:${KAIZOKU_DB_PASSWORD}@kaizoku-db:5432/kaizoku
       - KAIZOKU_PORT=3000
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -26,7 +26,7 @@ services:
       kaizoku-db:
         condition: service_healthy
     ports:
-      - '3000:3000'
+      - "3000:3000"
   redis:
     image: redis:7-alpine
     volumes:
@@ -35,14 +35,14 @@ services:
     image: postgres:alpine
     restart: unless-stopped
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U kaizoku']
+      test: ["CMD-SHELL", "pg_isready -U kaizoku"]
       interval: 5s
       timeout: 5s
       retries: 5
     environment:
       - POSTGRES_USER=kaizoku
       - POSTGRES_DB=kaizoku
-      - POSTGRES_PASSWORD=kaizoku
+      - POSTGRES_PASSWORD=${KAIZOKU_DB_PASSWORD}
     volumes:
       - kaizoku-db:/var/lib/postgresql/data
 
@@ -50,7 +50,7 @@ services:
     image: kizaing/kavita:latest
     restart: unless-stopped
     volumes:
-      - /home/akitaonrails/kavita:/kavita/config
+      - ${HOME_DIR}/kavita:/kavita/config
       - /mnt/terachad/Manga/Library:/manga
     ports:
-      - '5000:5000'
+      - "5000:5000"
