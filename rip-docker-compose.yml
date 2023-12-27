@@ -1,0 +1,20 @@
+version: '3'
+
+name: 'rip'
+
+services:
+  makemkv:
+    image: jlesage/makemkv
+    volumes:
+      - /home/akitaonrails/makemkv:/config
+      - /mnt/terachad/Videos/BluRay:/output
+      - type: bind
+        source: /home/akitaonrails
+        target: /storage
+        read_only: true
+    devices:
+      - /dev/sr0:/dev/sr0
+      - /dev/sg0:/dev/sg0
+    ports:
+      - '5800:5800'
+
