@@ -129,6 +129,7 @@ services:
 
   plex:
     image: plexinc/pms-docker:latest
+    shm_size: '2gb'
     restart: unless-stopped
     environment:
       - TZ=America/Sao_Paulo
